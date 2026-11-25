@@ -30,6 +30,40 @@ h1 {
   font-weight: bold;
 }
 
+/* ---------- Score and streak bar ---------- */
+#stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e1e8f2;
+}
+
+/* ---------- End screen ---------- */
+#end-screen .final-score {
+  font-size: 1.6rem;
+}
+
+#end-screen p {
+  font-size: 1.2rem;
+}
+
+#play-again {
+  margin-top: 1rem;
+  padding: 0.8rem 2rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  background: #2e6fd6;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+#play-again:hover {
+  background: #2459ad;
+}
+
 #timer {
   font-size: 2rem;
   font-weight: bold;

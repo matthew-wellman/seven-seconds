@@ -21,7 +21,7 @@ Build a single-player, browser-based trivia game in plain HTML, CSS, and JavaScr
 - Instant feedback: the correct answer turns green and a wrong pick turns red. After a 0.5-second pause (timer stopped), the next question appears.
 
 **3. Scoring and basic end screen**
-- Correct answer: **100 + (10 × whole seconds left) + (10 × current streak)**
+- Correct answer: **100 + 10 × (seconds left + current streak)**, with seconds left rounded up to match the countdown timer (4.2 seconds left counts as 5)
 - Wrong answer or timeout: 0 points, and the streak resets to 0.
 - Score and streak are shown live during play.
 - End screen shows final score, number correct (e.g., 7 / 10), and a Play Again button.

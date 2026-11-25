@@ -12,20 +12,38 @@
   <main class="card">
     <h1>Seven Seconds</h1>
 
-    <!-- Shows "Question 1 of 5" -->
-    <p id="progress"></p>
+    <!-- ===== Game screen (shown while playing) ===== -->
+    <section id="game-screen">
+      <!-- Live score and streak -->
+      <div id="stats">
+        <span>Score: <strong id="score">0</strong></span>
+        <span>Streak: <strong id="streak">0</strong></span>
+      </div>
 
-    <!-- Countdown for the current question, e.g. "7" -->
-    <p id="timer"></p>
+      <!-- Shows "Question 1 of 5" -->
+      <p id="progress"></p>
 
-    <!-- The current question text -->
-    <h2 id="question"></h2>
+      <!-- Countdown for the current question, e.g. "7" -->
+      <p id="timer"></p>
 
-    <!-- The four answer buttons are created by script.js and placed here -->
-    <div id="answers"></div>
+      <!-- The current question text -->
+      <h2 id="question"></h2>
 
-    <!-- Status messages: "Loading…", "Game Over", or an error -->
-    <p id="message"></p>
+      <!-- The four answer buttons are created by script.js and placed here -->
+      <div id="answers"></div>
+
+      <!-- Status messages: "Loading…", "+170", or an error -->
+      <p id="message"></p>
+    </section>
+
+    <!-- ===== End screen (shown after the last question) ===== -->
+    <!-- "hidden" keeps it invisible until script.js removes it -->
+    <section id="end-screen" hidden>
+      <h2>Game Over</h2>
+      <p class="final-score">Final score: <strong id="final-score">0</strong></p>
+      <p>Correct: <strong id="final-correct">0 / 0</strong></p>
+      <button id="play-again">Play Again</button>
+    </section>
   </main>
 </body>
 </html>

@@ -33,11 +33,11 @@ Each milestone ends with something you can open in a browser and test. Finish an
 ## Milestone 3: Scoring, Streaks, and End Screen
 *Makes it a real game.*
 
-- [ ] Correct answer: `100 + (10 × whole seconds left) + (10 × current streak)`
-- [ ] Wrong answer or timeout: 0 points, and the streak resets to 0
-- [ ] Show the score and streak live during play
-- [ ] End screen: final score, number correct (e.g., 4 / 5), and a Play Again button
-- [ ] Play Again fetches new questions and resets the score and streak
+- [x] Correct answer: `100 + 10 × (seconds left + current streak)`, with seconds rounded up to match the timer
+- [x] Wrong answer or timeout: 0 points, and the streak resets to 0
+- [x] Show the score and streak live during play
+- [x] End screen: final score, number correct (e.g., 4 / 5), and a Play Again button
+- [x] Play Again fetches new questions and resets the score and streak
 
 **Test it:** Play a round while keeping track of the math on paper, and confirm the final score matches. Then click Play Again and confirm everything resets.
 

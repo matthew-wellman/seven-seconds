@@ -1,5 +1,5 @@
 // ===== Settings =====
-// Milestone 1 uses fixed settings: 5 easy multiple-choice questions.
+// Fixed settings for now (Milestone 4 adds a setup screen): 5 easy multiple-choice questions.
 // "encode=url3986" asks the API to URL-encode all text, so we can decode it
 // safely with decodeURIComponent() instead of using innerHTML.
 const API_URL =
@@ -10,7 +10,18 @@ const QUESTION_TIME_MS = 7000; // time allowed per question, in milliseconds
 const TICK_MS = 100;           // how often the timer display updates
 const LOW_TIME_SECONDS = 3;    // timer turns red at or below this
 
+// Scoring rules: 100 + 10 × (seconds left, rounded up + current streak)
+const BASE_POINTS = 100;
+const BONUS_POINTS = 10;
+
 // ===== Page elements =====
+const gameScreenEl = document.getElementById("game-screen");
+const endScreenEl = document.getElementById("end-screen");
+const scoreEl = document.getElementById("score");
+const streakEl = document.getElementById("streak");
+const finalScoreEl = document.getElementById("final-score");
+const finalCorrectEl = document.getElementById("final-correct");
+const playAgainButton = document.getElementById("play-again");
 const progressEl = document.getElementById("progress");
 const timerEl = document.getElementById("timer");
 const questionEl = document.getElementById("question");
@@ -20,6 +31,9 @@ const messageEl = document.getElementById("message");
 // ===== Game state =====
 let questions = [];   // list of { question, correct, answers }
 let currentIndex = 0; // which question we're on
+let score = 0;        // total points this game
+let streak = 0;       // correct answers in a row
+let correctCount = 0; // how many questions answered correctly
 
 // ===== Timer state =====
 let timerId = null;   // the id from setInterval, so we can stop it
@@ -132,14 +146,29 @@ function updateTimerDisplay() {
 function handleAnswer(clickedButton, q) {
   if (answered) return; // ignore anything after the first answer
   answered = true;
+
+  // Read the time left BEFORE stopping the timer.
+  // Rounded up, to match the number on the timer: 4.2 seconds left counts as 5.
+  const secondsLeft = Math.ceil(getTimeLeftMs() / 1000);
   stopTimer(); // freeze the timer as soon as an answer is chosen
 
   revealAnswer(q);
 
-  if (clickedButton.textContent !== q.correct) {
+  if (clickedButton.textContent === q.correct) {
+    // The streak bonus uses the streak from BEFORE this answer.
+    const points =
+      BASE_POINTS + BONUS_POINTS * (secondsLeft + streak);
+    score += points;
+    streak++;
+    correctCount++;
+    messageEl.textContent = "+" + points;
+  } else {
     clickedButton.classList.add("wrong");
+    streak = 0;
+    messageEl.textContent = "+0";
   }
 
+  updateStats();
   setTimeout(nextQuestion, FEEDBACK_DELAY_MS);
 }
 
@@ -152,7 +181,18 @@ function handleTimeout() {
   timerEl.textContent = "Time's up!";
   revealAnswer(questions[currentIndex]);
 
+  // A timeout counts the same as a wrong answer.
+  streak = 0;
+  messageEl.textContent = "+0";
+  updateStats();
+
   setTimeout(nextQuestion, FEEDBACK_DELAY_MS);
+}
+
+// Show the current score and streak on the page.
+function updateStats() {
+  scoreEl.textContent = score;
+  streakEl.textContent = streak;
 }
 
 // Disable every button and turn the correct one green.
@@ -171,17 +211,43 @@ function nextQuestion() {
   currentIndex++;
 
   if (currentIndex < questions.length) {
+    messageEl.textContent = ""; // clear the "+points" from the last question
     showQuestion();
   } else {
-    // No more questions: clear the board and show Game Over.
-    progressEl.textContent = "";
-    timerEl.textContent = "";
-    timerEl.classList.remove("low");
-    questionEl.textContent = "";
-    answersEl.innerHTML = "";
-    messageEl.textContent = "Game Over";
+    showEndScreen();
   }
 }
 
-// ===== Start the game =====
-loadQuestions();
+// ===== End screen =====
+function showEndScreen() {
+  finalScoreEl.textContent = score;
+  finalCorrectEl.textContent = correctCount + " / " + questions.length;
+
+  gameScreenEl.hidden = true;
+  endScreenEl.hidden = false;
+}
+
+// ===== Starting (and restarting) a game =====
+function startGame() {
+  // Reset everything from the previous game.
+  score = 0;
+  streak = 0;
+  correctCount = 0;
+  updateStats();
+
+  progressEl.textContent = "";
+  timerEl.textContent = "";
+  timerEl.classList.remove("low");
+  questionEl.textContent = "";
+  answersEl.innerHTML = "";
+
+  endScreenEl.hidden = true;
+  gameScreenEl.hidden = false;
+
+  loadQuestions(); // fetch a fresh set of questions
+}
+
+playAgainButton.addEventListener("click", startGame);
+
+// ===== Start the first game =====
+startGame();
