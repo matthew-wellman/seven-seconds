@@ -46,13 +46,13 @@ Each milestone ends with something you can open in a browser and test. Finish an
 ## Milestone 4: Setup Screen and Error Handling
 *Lets the player choose their game, and handles problems gracefully.*
 
-- [ ] Start screen with preset buttons: 5 / 10 / 20 questions and Easy / Medium / Hard
-- [ ] Fetch the category list from the API and show it as a dropdown
-- [ ] Build the question request from the player's choices
-- [ ] Show a "Loading…" message while questions are being fetched
-- [ ] Friendly error message if the internet request fails
-- [ ] Friendly message if there aren't enough questions for the chosen settings
-- [ ] Play Again returns to the start screen
+- [x] Start screen with preset buttons: 5 / 10 / 20 questions and Easy / Medium / Hard
+- [x] Fetch the category list from the API and show it as a dropdown
+- [x] Build the question request from the player's choices
+- [x] Show a "Loading…" message while questions are being fetched
+- [x] Friendly error message if the internet request fails
+- [x] Friendly message if there aren't enough questions for the chosen settings
+- [x] Play Again returns to the start screen
 
 **Test it:** Try several combinations of settings, including 20 hard questions in a small category. Turn off Wi-Fi and start a game to check the error message.
 

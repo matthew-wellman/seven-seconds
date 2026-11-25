@@ -12,8 +12,46 @@
   <main class="card">
     <h1>Seven Seconds</h1>
 
+    <!-- ===== Setup screen (shown first, and after Play Again) ===== -->
+    <section id="setup-screen">
+      <h2>New Game</h2>
+
+      <!-- Each group's buttons carry their value in "data-value".
+           The default choice starts with class="selected". -->
+      <div class="setting">
+        <p class="setting-label">Number of questions</p>
+        <div class="choice-group" id="amount-choices">
+          <button type="button" data-value="5">5</button>
+          <button type="button" data-value="10" class="selected" aria-pressed="true">10</button>
+          <button type="button" data-value="20">20</button>
+        </div>
+      </div>
+
+      <div class="setting">
+        <p class="setting-label">Difficulty</p>
+        <div class="choice-group" id="difficulty-choices">
+          <button type="button" data-value="easy" class="selected" aria-pressed="true">Easy</button>
+          <button type="button" data-value="medium">Medium</button>
+          <button type="button" data-value="hard">Hard</button>
+        </div>
+      </div>
+
+      <div class="setting">
+        <label class="setting-label" for="category">Category</label>
+        <!-- script.js adds the rest of the categories from the API -->
+        <select id="category">
+          <option value="">Any Category</option>
+        </select>
+      </div>
+
+      <button type="button" id="start-button" class="primary-button">Start Game</button>
+
+      <!-- "Loading…" or a friendly error message -->
+      <p id="setup-message" role="status"></p>
+    </section>
+
     <!-- ===== Game screen (shown while playing) ===== -->
-    <section id="game-screen">
+    <section id="game-screen" hidden>
       <!-- Live score and streak -->
       <div id="stats">
         <span>Score: <strong id="score">0</strong></span>
@@ -32,7 +70,7 @@
       <!-- The four answer buttons are created by script.js and placed here -->
       <div id="answers"></div>
 
-      <!-- Status messages: "Loading…", "+170", or an error -->
+      <!-- Points earned for the last question, e.g. "+170" -->
       <p id="message"></p>
     </section>
 
@@ -42,7 +80,7 @@
       <h2>Game Over</h2>
       <p class="final-score">Final score: <strong id="final-score">0</strong></p>
       <p>Correct: <strong id="final-correct">0 / 0</strong></p>
-      <button id="play-again">Play Again</button>
+      <button type="button" id="play-again" class="primary-button">Play Again</button>
     </section>
   </main>
 </body>

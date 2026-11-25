@@ -1,9 +1,11 @@
 // ===== Settings =====
-// Fixed settings for now (Milestone 4 adds a setup screen): 5 easy multiple-choice questions.
-// "encode=url3986" asks the API to URL-encode all text, so we can decode it
-// safely with decodeURIComponent() instead of using innerHTML.
-const API_URL =
-  "https://opentdb.com/api.php?amount=5&difficulty=easy&type=multiple&encode=url3986";
+// Open Trivia Database web addresses (free, HTTPS, no API key needed).
+const QUESTIONS_URL = "https://opentdb.com/api.php";
+const CATEGORIES_URL = "https://opentdb.com/api_category.php";
+
+// The API allows about one request every 5 seconds. If we're too fast,
+// we wait this long and try once more.
+const RATE_LIMIT_WAIT_MS = 5000;
 
 const FEEDBACK_DELAY_MS = 500; // pause after answering, in milliseconds
 const QUESTION_TIME_MS = 7000; // time allowed per question, in milliseconds
@@ -15,6 +17,12 @@ const BASE_POINTS = 100;
 const BONUS_POINTS = 10;
 
 // ===== Page elements =====
+const setupScreenEl = document.getElementById("setup-screen");
+const amountChoicesEl = document.getElementById("amount-choices");
+const difficultyChoicesEl = document.getElementById("difficulty-choices");
+const categorySelect = document.getElementById("category");
+const startButton = document.getElementById("start-button");
+const setupMessageEl = document.getElementById("setup-message");
 const gameScreenEl = document.getElementById("game-screen");
 const endScreenEl = document.getElementById("end-screen");
 const scoreEl = document.getElementById("score");
@@ -28,6 +36,13 @@ const questionEl = document.getElementById("question");
 const answersEl = document.getElementById("answers");
 const messageEl = document.getElementById("message");
 
+// ===== Player's choices (defaults match the "selected" buttons in index.html) =====
+const settings = {
+  amount: "10",
+  difficulty: "easy",
+  category: "", // "" means Any Category
+};
+
 // ===== Game state =====
 let questions = [];   // list of { question, correct, answers }
 let currentIndex = 0; // which question we're on
@@ -40,24 +55,127 @@ let timerId = null;   // the id from setInterval, so we can stop it
 let deadline = 0;     // the exact time (in ms) when this question runs out
 let answered = false; // true once the player answers OR time runs out
 
-// ===== Fetching questions =====
-async function loadQuestions() {
-  messageEl.textContent = "Loading…";
+// ===== Setup screen: choice buttons =====
+// Makes a group of buttons act like "pick one": clicking a button highlights
+// it, un-highlights the others, and saves its value into settings[settingName].
+function setUpChoiceGroup(groupEl, settingName) {
+  const buttons = groupEl.querySelectorAll("button");
 
+  buttons.forEach(function (button) {
+    button.addEventListener("click", function () {
+      buttons.forEach(function (other) {
+        other.classList.remove("selected");
+        other.setAttribute("aria-pressed", "false");
+      });
+      button.classList.add("selected");
+      button.setAttribute("aria-pressed", "true");
+
+      settings[settingName] = button.dataset.value; // from data-value="..."
+    });
+  });
+}
+
+// ===== Setup screen: category dropdown =====
+async function loadCategories() {
   try {
-    const response = await fetch(API_URL);
+    const response = await fetch(CATEGORIES_URL);
     if (!response.ok) {
-      throw new Error("Network response was not OK: " + response.status);
+      throw new Error("Category request failed: " + response.status);
     }
-
     const data = await response.json();
-    // response_code 0 means success. Anything else is a problem.
-    if (data.response_code !== 0) {
-      throw new Error("API returned response code " + data.response_code);
+
+    data.trivia_categories.forEach(function (category) {
+      const option = document.createElement("option");
+      option.value = category.id;
+      option.textContent = category.name; // textContent: shown as plain text
+      categorySelect.appendChild(option);
+    });
+  } catch (error) {
+    // Not a big problem: "Any Category" still works.
+    console.error(error);
+    setupMessageEl.textContent =
+      "Couldn't load the category list, but you can still play with Any Category.";
+  }
+}
+
+categorySelect.addEventListener("change", function () {
+  settings.category = categorySelect.value;
+});
+
+// ===== Fetching questions =====
+// Builds the request web address from the player's choices, for example:
+// https://opentdb.com/api.php?amount=10&difficulty=easy&type=multiple&encode=url3986
+function buildQuestionsUrl() {
+  const params = new URLSearchParams({
+    amount: settings.amount,
+    difficulty: settings.difficulty,
+    type: "multiple",
+    // URL-encoded text can be decoded safely with decodeURIComponent(),
+    // so we never need innerHTML.
+    encode: "url3986",
+  });
+  if (settings.category !== "") {
+    params.set("category", settings.category);
+  }
+  return QUESTIONS_URL + "?" + params.toString();
+}
+
+// A "friendly" error carries a message that's safe to show the player.
+// Any other error (like no internet) gets a general message instead.
+function friendlyError(message) {
+  const error = new Error(message);
+  error.friendly = true;
+  return error;
+}
+
+// Waits for the given number of milliseconds (use with await).
+function wait(ms) {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, ms);
+  });
+}
+
+// Fetches questions and returns them as simple objects with decoded text.
+// Throws an error if anything goes wrong.
+async function fetchQuestions() {
+  const url = buildQuestionsUrl();
+
+  // Try up to 2 times, in case the first try hits the rate limit.
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    const response = await fetch(url); // throws if there's no internet
+
+    // Rate limited: 429 status, or response_code 5 (checked below).
+    let data = null;
+    if (response.ok) {
+      data = await response.json();
+    } else if (response.status !== 429) {
+      throw friendlyError(
+        "The trivia server had a problem (error " + response.status + "). Please try again."
+      );
     }
 
-    // Turn the API's format into simpler objects with decoded text.
-    questions = data.results.map(function (item) {
+    const rateLimited = response.status === 429 || (data && data.response_code === 5);
+    if (rateLimited) {
+      if (attempt === 1) {
+        setupMessageEl.textContent = "The trivia server is busy. Trying again in a few seconds…";
+        await wait(RATE_LIMIT_WAIT_MS);
+        continue; // go around the loop for attempt 2
+      }
+      throw friendlyError("The trivia server is busy. Please wait a few seconds and try again.");
+    }
+
+    // response_code 1 means there aren't enough questions for these settings.
+    if (data.response_code === 1) {
+      throw friendlyError(notEnoughQuestionsMessage());
+    }
+    // Any other non-zero code is unexpected.
+    if (data.response_code !== 0) {
+      throw friendlyError("Something went wrong getting questions (code " +
+        data.response_code + "). Please try again.");
+    }
+
+    // Success! Turn the API's format into simpler objects.
+    return data.results.map(function (item) {
       const correct = decodeURIComponent(item.correct_answer);
       const incorrect = item.incorrect_answers.map(decodeURIComponent);
       return {
@@ -66,14 +184,16 @@ async function loadQuestions() {
         answers: shuffle([correct, ...incorrect]),
       };
     });
-
-    messageEl.textContent = "";
-    currentIndex = 0;
-    showQuestion();
-  } catch (error) {
-    console.error(error);
-    messageEl.textContent = "Couldn't load questions. Please refresh to try again.";
   }
+}
+
+// e.g. "There aren't 20 hard questions in Science: Gadgets. Try fewer questions,
+// a different difficulty, or another category."
+function notEnoughQuestionsMessage() {
+  const categoryName = categorySelect.options[categorySelect.selectedIndex].textContent;
+  return "There aren't " + settings.amount + " " + settings.difficulty +
+    " questions in " + categoryName +
+    ". Try fewer questions, a different difficulty, or another category.";
 }
 
 // ===== Helpers =====
@@ -223,31 +343,58 @@ function showEndScreen() {
   finalScoreEl.textContent = score;
   finalCorrectEl.textContent = correctCount + " / " + questions.length;
 
-  gameScreenEl.hidden = true;
-  endScreenEl.hidden = false;
+  showScreen("end");
 }
 
-// ===== Starting (and restarting) a game =====
-function startGame() {
+// ===== Switching screens =====
+// Shows one screen ("setup", "game", or "end") and hides the other two.
+function showScreen(name) {
+  setupScreenEl.hidden = name !== "setup";
+  gameScreenEl.hidden = name !== "game";
+  endScreenEl.hidden = name !== "end";
+}
+
+// ===== Starting a game =====
+// Stays on the setup screen while loading, so if something goes wrong the
+// player can see the message, change their settings, and try again.
+async function startGame() {
+  startButton.disabled = true; // stop double-clicks from sending two requests
+  setupMessageEl.textContent = "Loading…";
+
+  try {
+    questions = await fetchQuestions();
+  } catch (error) {
+    console.error(error);
+    setupMessageEl.textContent = error.friendly
+      ? error.message
+      : "Couldn't reach the trivia server. Check your internet connection and try again.";
+    startButton.disabled = false;
+    return; // stay on the setup screen
+  }
+
   // Reset everything from the previous game.
+  currentIndex = 0;
   score = 0;
   streak = 0;
   correctCount = 0;
   updateStats();
-
-  progressEl.textContent = "";
-  timerEl.textContent = "";
   timerEl.classList.remove("low");
-  questionEl.textContent = "";
-  answersEl.innerHTML = "";
+  messageEl.textContent = "";
+  setupMessageEl.textContent = "";
+  startButton.disabled = false;
 
-  endScreenEl.hidden = true;
-  gameScreenEl.hidden = false;
-
-  loadQuestions(); // fetch a fresh set of questions
+  showScreen("game");
+  showQuestion();
 }
 
-playAgainButton.addEventListener("click", startGame);
+startButton.addEventListener("click", startGame);
 
-// ===== Start the first game =====
-startGame();
+// Play Again goes back to the setup screen. The previous choices stay selected.
+playAgainButton.addEventListener("click", function () {
+  showScreen("setup");
+});
+
+// ===== When the page loads =====
+setUpChoiceGroup(amountChoicesEl, "amount");
+setUpChoiceGroup(difficultyChoicesEl, "difficulty");
+loadCategories();

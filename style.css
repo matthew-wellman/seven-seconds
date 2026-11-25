@@ -48,7 +48,60 @@ h1 {
   font-size: 1.2rem;
 }
 
-#play-again {
+/* ---------- Setup screen ---------- */
+.setting {
+  margin-bottom: 1.25rem;
+}
+
+.setting-label {
+  display: block;
+  margin: 0 0 0.5rem;
+  font-weight: bold;
+}
+
+.choice-group {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.choice-group button {
+  min-width: 5.5rem;
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  border: 2px solid #c5cdd8;
+  border-radius: 8px;
+  background: #f3f6fa;
+  color: #1e2a3a;
+  cursor: pointer;
+}
+
+.choice-group button:hover {
+  background: #e1e8f2;
+}
+
+/* The currently chosen option in each group */
+.choice-group button.selected {
+  background: #2e6fd6;
+  border-color: #2e6fd6;
+  color: #ffffff;
+}
+
+#category {
+  padding: 0.6rem;
+  font-size: 1rem;
+  border: 2px solid #c5cdd8;
+  border-radius: 8px;
+  min-width: 16rem;
+}
+
+#setup-message {
+  min-height: 1.5em;
+  font-weight: bold;
+}
+
+/* ---------- Main action buttons (Start Game, Play Again) ---------- */
+.primary-button {
   margin-top: 1rem;
   padding: 0.8rem 2rem;
   font-size: 1.1rem;
@@ -60,8 +113,14 @@ h1 {
   cursor: pointer;
 }
 
-#play-again:hover {
+.primary-button:hover:not(:disabled) {
   background: #2459ad;
+}
+
+/* Greyed out while questions are loading */
+.primary-button:disabled {
+  background: #9aa8bb;
+  cursor: default;
 }
 
 #timer {
