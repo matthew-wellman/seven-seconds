@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trivia Time Attack</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- "defer" waits until the HTML is loaded before running the script -->
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <main class="card">
+    <h1>Trivia Time Attack</h1>
+
+    <!-- Shows "Question 1 of 5" -->
+    <p id="progress"></p>
+
+    <!-- The current question text -->
+    <h2 id="question"></h2>
+
+    <!-- The four answer buttons are created by script.js and placed here -->
+    <div id="answers"></div>
+
+    <!-- Status messages: "Loading…", "Game Over", or an error -->
+    <p id="message"></p>
+  </main>
+</body>
+</html>

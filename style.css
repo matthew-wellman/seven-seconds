@@ -1,0 +1,81 @@
+/* ---------- Page layout ---------- */
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1e2a3a;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: #1e2a3a;
+}
+
+.card {
+  width: 90%;
+  max-width: 600px;
+  padding: 2rem;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+h1 {
+  margin-top: 0;
+  font-size: 1.6rem;
+}
+
+#progress {
+  color: #667;
+  font-weight: bold;
+}
+
+#question {
+  font-size: 1.3rem;
+  min-height: 3em;
+}
+
+#message {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* ---------- Answer buttons (2 x 2 grid) ---------- */
+#answers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+#answers button {
+  padding: 1rem;
+  font-size: 1rem;
+  border: 2px solid #c5cdd8;
+  border-radius: 8px;
+  background: #f3f6fa;
+  color: #1e2a3a;
+  cursor: pointer;
+}
+
+#answers button:hover:not(:disabled) {
+  background: #e1e8f2;
+}
+
+/* Disabled buttons can't be clicked, but keep full color */
+#answers button:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+/* ---------- Feedback colors ---------- */
+#answers button.correct {
+  background: #2e9e4f;
+  border-color: #2e9e4f;
+  color: #ffffff;
+}
+
+#answers button.wrong {
+  background: #d64545;
+  border-color: #d64545;
+  color: #ffffff;
+}
