@@ -30,6 +30,18 @@ h1 {
   font-weight: bold;
 }
 
+#timer {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0.25rem 0;
+  min-height: 1.2em;
+}
+
+/* Turns the timer red for the last few seconds */
+#timer.low {
+  color: #d64545;
+}
+
 #question {
   font-size: 1.3rem;
   min-height: 3em;

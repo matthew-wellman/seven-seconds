@@ -1,4 +1,4 @@
-# Trivia Time Attack: Roadmap (Version 1)
+# Seven Seconds Trivia: Roadmap (Version 1)
 
 Each milestone ends with something you can open in a browser and test. Finish and test each one before starting the next.
 
@@ -11,7 +11,7 @@ Each milestone ends with something you can open in a browser and test. Finish an
 - [x] Fetch 5 easy multiple-choice questions from the Open Trivia Database (fixed settings for now)
 - [x] Decode the question and answer text and display it safely with `textContent`
 - [x] Show one question with four answer buttons in random order
-- [x] On click: correct answer turns green, wrong pick turns red, then a 1.5-second pause
+- [x] On click: correct answer turns green, wrong pick turns red, then a 0.5-second pause
 - [x] Move to the next question; after the last one, show "Game Over"
 
 **Test it:** Open `index.html`, answer all 5 questions, and check that the colors are right and that symbols like quotation marks and apostrophes display correctly.
@@ -21,10 +21,10 @@ Each milestone ends with something you can open in a browser and test. Finish an
 ## Milestone 2: Countdown Timer
 *Adds the time pressure.*
 
-- [ ] Show a 7-second countdown for each question
-- [ ] When time runs out, reveal the correct answer (green), pause 1.5 seconds, and move on
-- [ ] Stop the timer as soon as an answer is clicked, and keep it stopped during the pause
-- [ ] Prevent extra clicks after an answer is chosen or time runs out
+- [x] Show a 7-second countdown for each question
+- [x] When time runs out, reveal the correct answer (green), pause 0.5 seconds, and move on
+- [x] Stop the timer as soon as an answer is clicked, and keep it stopped during the pause
+- [x] Prevent extra clicks after an answer is chosen or time runs out
 
 **Test it:** Let a question time out, answer one quickly, and click several buttons rapidly to make sure only the first click counts.
 

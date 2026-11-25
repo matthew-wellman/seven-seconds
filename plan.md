@@ -1,4 +1,4 @@
-# Trivia Time Attack: Project Plan
+# Seven Seconds: Project Plan
 
 ## Goal
 Build a single-player, browser-based trivia game in plain HTML, CSS, and JavaScript that rewards players for answering quickly and correctly, and use it to learn how to fetch data from the internet.
@@ -18,7 +18,7 @@ Build a single-player, browser-based trivia game in plain HTML, CSS, and JavaScr
 **2. The timed question loop**
 - One multiple-choice question at a time, with four answer buttons in random order.
 - 7-second countdown per question. When time runs out, the game moves on to the next question.
-- Instant feedback: the correct answer turns green and a wrong pick turns red. After a 1.5-second pause (timer stopped), the next question appears.
+- Instant feedback: the correct answer turns green and a wrong pick turns red. After a 0.5-second pause (timer stopped), the next question appears.
 
 **3. Scoring and basic end screen**
 - Correct answer: **100 + (10 × whole seconds left) + (10 × current streak)**
